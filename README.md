@@ -1,5 +1,7 @@
 # agent-handoff
 
+[![tests](https://github.com/codes1gn/agent-handoff/actions/workflows/tests.yml/badge.svg)](https://github.com/codes1gn/agent-handoff/actions/workflows/tests.yml)
+
 > `/handoff` + `/resume` — cross-session memory and context continuity for AI coding assistants.
 
 A portable, zero-dependency skill pair that saves and restores your AI coding session state. Works across **VS Code Copilot**, **Cursor**, and **Claude Code** via the [agentskills.io](https://agentskills.io) open standard.
@@ -20,19 +22,19 @@ A portable, zero-dependency skill pair that saves and restores your AI coding se
 - Ready to continue immediately — no context re-explanation needed
 
 ```
-╔══════════════════════════════════════════════════════════════════╗
-║ 📋 RESUMED: auth-refactor-2026-05-30                             ║
-╠══════════════════════════════════════════════════════════════════╣
-║ GOAL    │ Refactor auth module to use JWT instead of sessions    ║
-║ STATUS  │ in_progress                                            ║
-║ BRANCH  │ feature/jwt-auth                                       ║
-╠══════════════════════════════════════════════════════════════════╣
-║ ▶ NEXT ACTION                                                    ║
-║   Finish validateToken() in src/auth/jwt.ts (line 47)           ║
-╠══════════════════════════════════════════════════════════════════╣
-║ 🧠 MEMORY LOADED                                                 ║
-║ 📦 6 project facts · 👤 4 user preferences                      ║
-╚══════════════════════════════════════════════════════════════════╝
++------------------------------------------------------------------+
+| RESUMED: auth-refactor-2026-05-30                                |
++------------------------------------------------------------------+
+| GOAL    | Refactor auth module to use JWT instead of sessions    |
+| STATUS  | in_progress                                            |
+| BRANCH  | feature/jwt-auth                                       |
++------------------------------------------------------------------+
+| NEXT ACTION                                                      |
+|   Finish validateToken() in src/auth/jwt.ts (line 47)           |
++------------------------------------------------------------------+
+| MEMORY LOADED                                                    |
+| 6 project facts  4 user preferences                              |
++------------------------------------------------------------------+
 ```
 
 ---
@@ -82,7 +84,7 @@ cp -r resume/  .claude/skills/resume/
 ```
 /handoff                      # auto-name from topic + date
 /handoff auth-refactor        # named session
-/handoff "my feature work"    # spaces OK — slugified automatically
+/handoff "my feature work"    # spaces OK -- slugified automatically
 
 /resume                       # load most recent
 /resume auth-refactor         # load by exact tag
@@ -126,9 +128,24 @@ Full design document: [`DESIGN.md`](DESIGN.md)
 
 | Platform | Path | Status |
 |----------|------|--------|
-| VS Code Copilot | `.github/skills/` or `~/.copilot/skills/` | ✅ Implemented |
-| Cursor | `.cursor/skills/` or `~/.cursor/skills/` | ✅ Compatible (same SKILL.md) |
-| Claude Code | `.claude/skills/` or `~/.claude/skills/` | ✅ Compatible + Claude Code enhancements |
+| VS Code Copilot | `.github/skills/` or `~/.copilot/skills/` | Implemented |
+| Cursor | `.cursor/skills/` or `~/.cursor/skills/` | Compatible (same SKILL.md) |
+| Claude Code | `.claude/skills/` or `~/.claude/skills/` | Compatible + Claude Code enhancements |
+
+---
+
+## Testing
+
+The `tests/` directory contains a parallel batch test suite — verified locally at **7200/7200 checks passing** across 13 scenarios:
+
+```bash
+cd tests
+python run_tests.py                        # 13 scenarios x 3 runs, 4 workers
+python run_tests.py --workers 8 --runs 10  # stress test
+python run_tests.py --list                 # list all scenario IDs
+```
+
+Requires Python 3.8+, stdlib only — no pip installs needed.
 
 ---
 
