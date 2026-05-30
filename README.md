@@ -1,10 +1,51 @@
-# agent-handoff
+<p align="center">
+  <h1 align="center">agent-handoff</h1>
+  <p align="center">
+    <strong>Never lose context between AI coding sessions again.</strong>
+  </p>
+</p>
 
-[![tests](https://github.com/codes1gn/agent-handoff/actions/workflows/tests.yml/badge.svg)](https://github.com/codes1gn/agent-handoff/actions/workflows/tests.yml)
+<p align="center">
+  <a href="https://github.com/codes1gn/agent-handoff/actions/workflows/tests.yml"><img alt="tests" src="https://github.com/codes1gn/agent-handoff/actions/workflows/tests.yml/badge.svg" /></a>
+  <a href="https://github.com/codes1gn/agent-handoff/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg" /></a>
+  <a href="https://github.com/codes1gn/agent-handoff"><img alt="Python 3.8+" src="https://img.shields.io/badge/Python-3.8%2B-blue.svg" /></a>
+  <a href="https://github.com/codes1gn/agent-handoff/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/codes1gn/agent-handoff?style=social" /></a>
+</p>
 
-> `/handoff` + `/resume` — cross-session memory and context continuity for AI coding assistants.
+<p align="center">
+  <a href="https://codes1gn.github.io/agent-handoff/">Website</a> &bull;
+  <a href="#why">Why</a> &bull;
+  <a href="#install">Install</a> &bull;
+  <a href="#usage">Usage</a> &bull;
+  <a href="#how-it-works">How It Works</a> &bull;
+  <a href="#platforms">Platforms</a> &bull;
+  <a href="#testing">Testing</a>
+</p>
 
-A portable, zero-dependency skill pair that saves and restores your AI coding session state. Works across **VS Code Copilot**, **Cursor**, and **Claude Code** via the [agentskills.io](https://agentskills.io) open standard.
+---
+
+## Why
+
+AI coding assistants lose all context when a session ends. Starting a new session means re-explaining your codebase, the decisions you made, and what to do next — every single time.
+
+```
+Without agent-handoff:                      With agent-handoff:
+
+  Session 1: "Help me refactor auth"         Session 1: "Help me refactor auth"
+  Agent: Done!                               Agent: Done!
+  --- context lost ---                       /handoff auth-refactor   ← save
+                                             Saved. Tag: auth-refactor
+  Session 2: "Continue auth work"
+  Agent: I don't have context                Session 2:
+         about what you were                 /resume auth-refactor    ← restore
+         working on. Can you                 +--------------------------------+
+         re-explain the project?             | RESUMED: auth-refactor         |
+                                             | NEXT: Finish validateToken()   |
+  Session 3: "..."                           +--------------------------------+
+  --- re-explaining again ---                Agent: Continuing from line 47...
+```
+
+`/handoff` saves. `/resume` restores. Zero friction.
 
 ---
 
@@ -41,40 +82,33 @@ A portable, zero-dependency skill pair that saves and restores your AI coding se
 
 ## Install
 
-### VS Code Copilot (project-level)
+### Recommended — one-line per platform
 
 ```bash
-# From your project root:
-cp -r handoff/ .github/skills/handoff/
-cp -r resume/  .github/skills/resume/
+# Clone once
+git clone https://github.com/codes1gn/agent-handoff.git /tmp/ah
+
+# VS Code Copilot (project-level)
+cp -r /tmp/ah/handoff/ .github/skills/handoff/ && cp -r /tmp/ah/resume/ .github/skills/resume/
+
+# Cursor (project-level)
+cp -r /tmp/ah/handoff/ .cursor/skills/handoff/ && cp -r /tmp/ah/resume/ .cursor/skills/resume/
+
+# Claude Code (project-level)
+cp -r /tmp/ah/handoff/ .claude/skills/handoff/ && cp -r /tmp/ah/resume/ .claude/skills/resume/
 ```
 
-### VS Code Copilot (personal — all projects)
+### Personal install (all projects)
 
 ```bash
-cp -r handoff/ ~/.copilot/skills/handoff/
-cp -r resume/  ~/.copilot/skills/resume/
-```
+# VS Code Copilot
+cp -r /tmp/ah/handoff/ ~/.copilot/skills/handoff/ && cp -r /tmp/ah/resume/ ~/.copilot/skills/resume/
 
-### Cursor (project-level)
+# Cursor
+cp -r /tmp/ah/handoff/ ~/.cursor/skills/handoff/ && cp -r /tmp/ah/resume/ ~/.cursor/skills/resume/
 
-```bash
-cp -r handoff/ .cursor/skills/handoff/
-cp -r resume/  .cursor/skills/resume/
-```
-
-### Cursor (personal)
-
-```bash
-cp -r handoff/ ~/.cursor/skills/handoff/
-cp -r resume/  ~/.cursor/skills/resume/
-```
-
-### Claude Code
-
-```bash
-cp -r handoff/ .claude/skills/handoff/
-cp -r resume/  .claude/skills/resume/
+# Claude Code
+cp -r /tmp/ah/handoff/ ~/.claude/skills/handoff/ && cp -r /tmp/ah/resume/ ~/.claude/skills/resume/
 ```
 
 ---
@@ -84,7 +118,7 @@ cp -r resume/  .claude/skills/resume/
 ```
 /handoff                      # auto-name from topic + date
 /handoff auth-refactor        # named session
-/handoff "my feature work"    # spaces OK -- slugified automatically
+/handoff "my feature work"    # spaces OK — slugified automatically
 
 /resume                       # load most recent
 /resume auth-refactor         # load by exact tag
@@ -93,62 +127,99 @@ cp -r resume/  .claude/skills/resume/
 
 ---
 
-## Data Storage
+## How It Works
 
-All data is self-contained in the `handoff/data/` directory:
+The system has two layers:
+
+```
+Layer 1: Session State (per-handoff)       Layer 2: Persistent Memory (across all)
+─────────────────────────────────────────  ─────────────────────────────────────────
+<tag>.xml    → structured summary          project-memory.xml → stable project facts
+<tag>.transcript.md → raw conversation     user-memory.xml    → user preferences
+
+Loaded on /resume <tag>                    Loaded on every /resume automatically
+```
+
+**Data is self-contained** in `handoff/data/` — flat XML files, no database, works in any git repo.
 
 ```
 handoff/data/
 ├── index.xml                   # session registry (newest first)
 ├── sessions/
 │   ├── <tag>.xml               # structured session state
-│   └── <tag>.transcript.md    # conversation transcript (best-effort)
+│   └── <tag>.transcript.md     # conversation transcript
 └── memory/
     ├── project-memory.xml      # stable facts about this codebase
     └── user-memory.xml         # how this user prefers to work
 ```
 
-**Memory is additive.** Conflicting facts are marked `superseded` (not deleted) — full audit trail preserved. No database. Flat XML files work perfectly at personal scale.
+**Memory is additive.** Conflicting facts are marked `superseded` — full audit trail preserved.
+
+Full design: [`DESIGN.md`](DESIGN.md)
 
 ---
 
-## Design
+## Platforms
 
-- **XML as storage format** — Claude-series models parse XML reliably; template-as-harness produces consistent output
-- **Transcript as ground truth** — raw conversation is immutable; summary XML is derived from it
-- **Progressive disclosure** — `/resume` loads summary first; transcript is available for verification
-- **No `/forget` command** — correction via natural conversation; agent re-reads transcript if needed
-- **Zero dependencies** — file writes only; works in any git repo
-
-Full design document: [`DESIGN.md`](DESIGN.md)
-
----
-
-## Compatibility
-
-| Platform | Path | Status |
-|----------|------|--------|
-| VS Code Copilot | `.github/skills/` or `~/.copilot/skills/` | Implemented |
-| Cursor | `.cursor/skills/` or `~/.cursor/skills/` | Compatible (same SKILL.md) |
-| Claude Code | `.claude/skills/` or `~/.claude/skills/` | Compatible + Claude Code enhancements |
+| Platform | Install path | Status |
+|----------|-------------|--------|
+| VS Code Copilot | `.github/skills/` or `~/.copilot/skills/` | ✅ Implemented |
+| Cursor | `.cursor/skills/` or `~/.cursor/skills/` | ✅ Compatible |
+| Claude Code | `.claude/skills/` or `~/.claude/skills/` | ✅ Compatible |
+| OpenCode | `.opencode/skills/` | 🔜 Planned |
+| Windsurf | `.windsurf/skills/` | 🔜 Planned |
 
 ---
 
 ## Testing
 
-The `tests/` directory contains a parallel batch test suite — verified locally at **7200/7200 checks passing** across 13 scenarios:
+Verified at **7200/7200 checks passing** across 13 scenarios, 3 Python versions, 8 parallel workers:
 
 ```bash
 cd tests
 python run_tests.py                        # 13 scenarios x 3 runs, 4 workers
-python run_tests.py --workers 8 --runs 10  # stress test
+python run_tests.py --workers 8 --runs 10  # stress test (7200 checks)
 python run_tests.py --list                 # list all scenario IDs
 ```
 
-Requires Python 3.8+, stdlib only — no pip installs needed.
+Requires Python 3.8+, stdlib only — zero pip installs.
+
+CI runs automatically on every push via [GitHub Actions](.github/workflows/tests.yml).
+
+---
+
+## Repository Structure
+
+```
+agent-handoff/
+├── README.md                     # This file
+├── DESIGN.md                     # Full design document
+├── LICENSE                       # MIT
+├── handoff/
+│   └── SKILL.md                  # /handoff skill (copy to install)
+├── resume/
+│   └── SKILL.md                  # /resume skill (copy to install)
+├── handoff/data/                  # Self-contained data storage
+│   ├── index.xml
+│   ├── sessions/
+│   └── memory/
+├── tests/
+│   ├── README.md                 # Testing guide
+│   └── run_tests.py              # Parallel batch test runner
+├── docs/
+│   └── index.html                # GitHub Pages website
+└── .github/
+    └── workflows/tests.yml       # CI
+```
 
 ---
 
 ## License
 
-MIT
+[MIT](LICENSE)
+
+---
+
+<p align="center">
+  <sub>7200/7200 checks passing &bull; zero dependencies &bull; works with VS Code Copilot, Cursor, and Claude Code</sub>
+</p>
