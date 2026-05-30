@@ -28,7 +28,7 @@ from verify import HandoffVerifier, ResumeVerifier
 from scenarios import SCENARIOS
 
 
-# ─── worker (must be module-level for ProcessPoolExecutor pickling) ─────────
+# --- worker (must be module-level for ProcessPoolExecutor pickling) ----------
 
 def _run_worker(args: Tuple[dict, int]) -> Dict[str, Any]:
     """Execute one scenario run in an isolated temp directory."""
@@ -46,7 +46,7 @@ def _run_worker(args: Tuple[dict, int]) -> Dict[str, Any]:
             if scenario_type == 'collision':
                 # Run handoff twice with the same tag
                 r1 = simulate_handoff(scenario, base)
-                r2 = simulate_handoff(scenario, base)  # identical tag → collision
+                r2 = simulate_handoff(scenario, base)  # identical tag -> collision
 
                 v = HandoffVerifier(base, r1)
                 v.run_all_checks()
@@ -112,7 +112,7 @@ def _run_worker(args: Tuple[dict, int]) -> Dict[str, Any]:
         }
 
 
-# ─── statistics + formatting ─────────────────────────────────────────────────
+# --- statistics + formatting -------------------------------------------------
 
 def _print_stats(all_results: List[dict], elapsed: float) -> bool:
     """Print per-scenario stats. Returns True if all runs passed."""
@@ -123,7 +123,7 @@ def _print_stats(all_results: List[dict], elapsed: float) -> bool:
             by_sid[sid] = {
                 'runs': 0, 'passed_runs': 0,
                 'total_checks': 0, 'passed_checks': 0,
-                'failures': {},  # name → message (deduped)
+                'failures': {},  # name -> message (deduped)
                 'errors': [],
             }
         s = by_sid[sid]
@@ -138,14 +138,13 @@ def _print_stats(all_results: List[dict], elapsed: float) -> bool:
             s['errors'].append(r.get('error', ''))
 
     W = 62
-    print(f"\n{'═'*W}")
+    print(f"\n{'='*W}")
     print(f"  SCENARIO RESULTS")
-    print(f"{'═'*W}")
+    print(f"{'='*W}")
 
     for sid, s in by_sid.items():
         run_rate = s['passed_runs'] / s['runs'] * 100
-        chk_rate = s['passed_checks'] / max(s['total_checks'], 1) * 100
-        icon = '✓' if run_rate == 100 else ('~' if run_rate > 0 else '✗')
+        icon = '[ok]' if run_rate == 100 else ('[~~]' if run_rate > 0 else '[!!]')
         print(
             f"  {icon} {sid:<40s} "
             f"{s['passed_runs']:2d}/{s['runs']} runs  "
@@ -153,7 +152,7 @@ def _print_stats(all_results: List[dict], elapsed: float) -> bool:
         )
         for name, msg in s['failures'].items():
             tail = f': {msg}' if msg else ''
-            print(f"      ✗ {name}{tail}")
+            print(f"      FAIL {name}{tail}")
         for err in s['errors'][:1]:  # show first error per scenario
             for line in err.splitlines()[-5:]:
                 print(f"      | {line}")
@@ -167,16 +166,16 @@ def _print_stats(all_results: List[dict], elapsed: float) -> bool:
     pct = passed_checks / max(total_checks, 1) * 100
     avg_ms = sum(r['elapsed_ms'] for r in all_results) / max(total_runs, 1)
 
-    print(f"\n{'─'*W}")
+    print(f"\n{'-'*W}")
     print(f"  Runs  :  {pass_runs} PASS  {fail_runs} FAIL  {err_runs} ERROR  / {total_runs} total")
     print(f"  Checks:  {passed_checks}/{total_checks} ({pct:.1f}%)")
     print(f"  Time  :  {elapsed:.2f}s wall  ({avg_ms:.0f}ms avg per run)")
-    print(f"{'═'*W}\n")
+    print(f"{'='*W}\n")
 
     return fail_runs == 0 and err_runs == 0
 
 
-# ─── main ────────────────────────────────────────────────────────────────────
+# --- main --------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(
@@ -205,7 +204,7 @@ def main():
             print(f"ERROR: scenario '{args.scenario}' not found. Use --list to see all.")
             sys.exit(1)
 
-    # Build workload: (scenario, run_id) tuples — each runs in its own process
+    # Build workload: (scenario, run_id) tuples -- each runs in its own process
     workload: List[Tuple[dict, int]] = [
         (s, run_id)
         for s in scenarios
@@ -214,10 +213,10 @@ def main():
     total_jobs = len(workload)
     W = 62
 
-    print(f"\n{'═'*W}")
+    print(f"\n{'='*W}")
     print(f"  agent-handoff test runner")
-    print(f"  {len(scenarios)} scenario(s) × {args.runs} run(s) = {total_jobs} jobs  (workers={args.workers})")
-    print(f"{'═'*W}\n")
+    print(f"  {len(scenarios)} scenario(s) x {args.runs} run(s) = {total_jobs} jobs  (workers={args.workers})")
+    print(f"{'='*W}\n")
 
     all_results: List[dict] = []
     completed = 0
@@ -229,7 +228,7 @@ def main():
             result = fut.result()
             all_results.append(result)
             completed += 1
-            icon = {'PASS': '✓', 'FAIL': '✗', 'ERROR': '!'}.get(result['status'], '?')
+            icon = {'PASS': '[ok]', 'FAIL': '[!!]', 'ERROR': '[EE]'}.get(result['status'], '[??]')
             print(
                 f"  [{completed:3d}/{total_jobs}] {icon} "
                 f"{result['scenario']:<36s} "
