@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Project Memory v1.0
+  Maintained by /handoff skill. Stores stable facts about THIS codebase.
+  Only entries with status="active" are loaded on /resume.
+  Superseded entries are kept for audit.
+-->
+<project_memory version="1.0">
+  <!-- <fact> entries will be appended here by /handoff -->
+</project_memory>

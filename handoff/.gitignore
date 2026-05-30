@@ -1,0 +1,4 @@
+# data/sessions is where /handoff writes session XML and transcript files.
+# Uncomment the line below if you don't want session data committed to git.
+# data/sessions/
+# data/memory/

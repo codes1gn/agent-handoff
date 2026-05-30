@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  User Memory v1.0
+  Maintained by /handoff skill. Stores stable preferences about HOW THIS USER works.
+  Only entries with status="active" are loaded on /resume.
+  Superseded entries are kept for audit.
+-->
+<user_memory version="1.0">
+  <!-- <preference> entries will be appended here by /handoff -->
+</user_memory>
