@@ -1,26 +1,25 @@
-<p align="center">
-  <h1 align="center">agent-handoff</h1>
-  <p align="center">
-    <strong>Never lose context between AI coding sessions again.</strong>
-  </p>
-</p>
+<div align="center">
 
-<p align="center">
-  <a href="https://github.com/codes1gn/agent-handoff/actions/workflows/tests.yml"><img alt="tests" src="https://github.com/codes1gn/agent-handoff/actions/workflows/tests.yml/badge.svg" /></a>
-  <a href="https://github.com/codes1gn/agent-handoff/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg" /></a>
-  <a href="https://github.com/codes1gn/agent-handoff"><img alt="Python 3.8+" src="https://img.shields.io/badge/Python-3.8%2B-blue.svg" /></a>
-  <a href="https://github.com/codes1gn/agent-handoff/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/codes1gn/agent-handoff?style=social" /></a>
-</p>
+# 🔀 agent-handoff
 
-<p align="center">
-  <a href="https://codes1gn.github.io/agent-handoff/">Website</a> &bull;
-  <a href="#why">Why</a> &bull;
-  <a href="#install">Install</a> &bull;
-  <a href="#usage">Usage</a> &bull;
-  <a href="#how-it-works">How It Works</a> &bull;
-  <a href="#platforms">Platforms</a> &bull;
-  <a href="#testing">Testing</a>
-</p>
+### Session Memory Persistence for AI Coding Agents
+
+[![Tests](https://img.shields.io/github/actions/workflow/status/codes1gn/agent-handoff/tests.yml?label=tests&style=flat-square)](https://github.com/codes1gn/agent-handoff/actions)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-blue?style=flat-square)](https://www.python.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square)](LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/codes1gn/agent-handoff?style=flat-square&logo=github)](https://github.com/codes1gn/agent-handoff/stargazers)
+
+[🌐 Website](https://codes1gn.github.io/agent-handoff) &bull;
+[❓ Why](#why) &bull;
+[📦 Install](#install) &bull;
+[🚀 Usage](#usage) &bull;
+[⚙️ How It Works](#how-it-works) &bull;
+[🖥️ Platforms](#platforms) &bull;
+[🧪 Testing](#testing)
+
+</div>
+
+---
 
 ---
 
@@ -221,5 +220,5 @@ agent-handoff/
 ---
 
 <p align="center">
-  <sub>7200/7200 checks passing &bull; zero dependencies &bull; works with VS Code Copilot, Cursor, and Claude Code</sub>
+  <sub>8,400/8,400 checks passing &bull; zero dependencies &bull; VS Code Copilot, Cursor, and Claude Code</sub>
 </p>
