@@ -220,5 +220,5 @@ agent-handoff/
 ---
 
 <p align="center">
-  <sub>8,400/8,400 checks passing &bull; zero dependencies &bull; VS Code Copilot, Cursor, and Claude Code</sub>
+  <sub>7,200/7,200 checks passing &bull; zero dependencies &bull; VS Code Copilot, Cursor, and Claude Code</sub>
 </p>
